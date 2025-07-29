@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather Forecast</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .weather-card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-header {
+            background: var(--primary-color);
+            color: white;
+            border-bottom: none;
+        }
+        
+        .weather-icon {
+            width: 100px;
+            height: 100px;
+            margin: -15px 0;
+        }
+        
+        .temperature {
+            font-size: 3.5rem;
+            font-weight: 300;
+        }
+        
+        .weather-details {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .detail-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .weather-condition {
+            text-transform: capitalize;
+        }
+        
+        .city-name {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .city-name::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: white;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .city-name:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .search-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .temperature {
+                font-size: 2.5rem;
+            }
+            .weather-icon {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="weather-card card">
+                    <div class="card-header text-center py-4">
+                        <h1 class="mb-0"><i class="fas fa-cloud-sun me-2"></i>Weather Forecast</h1>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="weatherForm" th:action="@{/weather}" method="get" class="mb-4">
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       name="city" 
+                                       id="city" 
+                                       placeholder="Enter city name" 
+                                       required
+                                       th:value="${param.city != null} ? ${param.city} : ''">
+                                <button class="btn btn-primary btn-lg search-btn" type="submit">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Error Message -->
+                        <div th:if="${error}" class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}">Error message</span>
+                        </div>
+                        
+                        <!-- Weather Data -->
+                        <div th:if="${weather != null}">
+                            <div class="text-center mb-4">
+                                <h2 class="city-name mb-3" th:text="${weather.name} + (${weather.sys?.country != null} ? ', ' + ${weather.sys.country} : '')">
+                                    City, Country
+                                </h2>
+                                
+                                <div th:if="${weather.weather != null and !weather.weather.isEmpty()}">
+                                    <img th:src="${'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '@4x.png'}" 
+                                         class="weather-icon mb-3" 
+                                         alt="Weather icon">
+                                    <h3 class="weather-condition mb-3" th:text="${weather.weather[0].description}">
+                                        Weather condition
+                                    </h3>
+                                </div>
+                                
+                                <div class="temperature mb-3" th:text="${weather.main?.temp + '°C'}">
+                                    25°C
+                                </div>
+                            </div>
+                            
+                            <div class="weather-details mb-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <span class="detail-icon"><i class="fas fa-temperature-low"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Feels Like</div>
+                                                <div th:text="${weather.main?.feelsLike + '°C'}">24°C</div>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon"><i class="fas fa-temperature-arrow-down"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Min Temp</div>
+                                                <div th:text="${weather.main?.tempMin + '°C'}">22°C</div>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon"><i class="fas fa-temperature-arrow-up"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Max Temp</div>
+                                                <div th:text="${weather.main?.tempMax + '°C'}">28°C</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <span class="detail-icon"><i class="fas fa-droplet"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Humidity</div>
+                                                <div th:text="${weather.main?.humidity + '%'}">65%</div>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon"><i class="fas fa-wind"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Wind Speed</div>
+                                                <div th:text="${weather.wind?.speed + ' m/s'}">5 m/s</div>
+                                            </div>
+                                        </div>
+                                        <div th:if="${weather.sys?.sunrise != null}" class="detail-item">
+                                            <span class="detail-icon"><i class="fas fa-sun"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Sunrise</div>
+                                                <div th:text="${#dates.format(#dates.create(weather.sys.sunrise * 1000), 'HH:mm')}">06:30</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center text-muted small">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Last updated: <span th:text="${#dates.format(#dates.createNow(), 'HH:mm')}"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Default message when no weather data -->
+                        <div th:unless="${weather != null or error != null}" class="text-center py-5">
+                            <i class="fas fa-city fa-3x mb-3 text-secondary"></i>
+                            <h4 class="text-muted">Search for a city to see weather information</h4>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4 text-muted small">
+                    Powered by OpenWeatherMap
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const weatherForm = document.getElementById('weatherForm');
+            const cityInput = document.getElementById('city');
+            
+            // Focus on input field when page loads
+            cityInput.focus();
+            
+            weatherForm.addEventListener('submit', function(e) {
+                const city = cityInput.value.trim();
+                if (!city) {
+                    e.preventDefault();
+                    cityInput.classList.add('is-invalid');
+                    cityInput.focus();
+                } else {
+                    cityInput.classList.remove('is-invalid');
+                }
+            });
+            
+            // Check for error parameter in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                cityInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
