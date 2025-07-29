@@ -1,0 +1,3 @@
+com\api\file\BootrestfileuploadApplication.class
+com\api\file\controller\FileUploadController.class
+com\api\file\helper\FileUploadHelper.class
