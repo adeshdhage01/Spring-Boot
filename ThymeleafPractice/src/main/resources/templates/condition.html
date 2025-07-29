@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+</head>
+<body>
+    <!-- Elvis Operator -->
+    <h1>User is: <span th:text="${isActive} ? 'ACTIVE' : 'OFFLINE'"></span></h1>
+    
+    <!-- Conditional Rendering -->
+    <h1 th:if="${gender} == 'M'">Male</h1>
+    <h1 th:unless="${gender} == 'M'">Female</h1>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Success</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Form Submitted Successfully!</h1>
+        <p><strong>User Name:</strong> <span th:text="${loginData.userName}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${loginData.email}"></span></p>
+    </div>
+</body>
+</html>
